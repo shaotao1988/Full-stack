@@ -7,4 +7,3 @@ class BlogPostAdmin(admin.ModelAdmin):
     prepopulated_fields = {'slug': ('title',)}
 
 admin.site.register(BlogPost, BlogPostAdmin)
-print("'Hello, it's my my first django project")
