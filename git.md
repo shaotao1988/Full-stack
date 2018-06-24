@@ -1,6 +1,7 @@
 # Git命令行学习  
 
 1. 新建代码库
+
 - 初始化本地仓库  
 ```git
 git init
@@ -18,6 +19,7 @@ git clone location-to-your-git-repository
 ```
 
 2. 配置  
+
 - 显示当前配置信息
 ```git
 git config --list
@@ -33,6 +35,7 @@ git config --global user.email 'user-email'
 ```
 
 3. 更新文件到仓库
+
 ```git
 git add [file1] [file2] # 将变动添加到暂存区
 git add [dir] # 将该目录下的变动添加到暂存区
@@ -47,6 +50,7 @@ git commit -m 'message-of-this-commit' # 提交暂存区代码到本地仓库
 ```
 
 4. 查看提交历史  
+
 ```
 git log
 ```
@@ -56,6 +60,7 @@ git log
 - --pretty=oneline 每个提交放在一行显示
 
 5. 撤销操作
+
 ```
 git commit --amend
 ```
@@ -68,6 +73,7 @@ git reset HEAD [file1] # 撤销暂存区中的指定文件
 将文件从暂存区中撤销
 
 6. 远程仓库操作
+
 - 查看远程仓库
 ```
 git remote -v
@@ -143,7 +149,7 @@ git tag -d [tag-name]
 ```
 git push origin :refs/tags/[tag-name]
 ```
-1. 分支
+8. 分支
 
 - 创建分支
 ```
