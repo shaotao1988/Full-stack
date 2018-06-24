@@ -17,10 +17,8 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf.urls import re_path
 
-from blogpost import views
-
 urlpatterns = [
-    re_path('^$', views.index),
+    re_path('^$', include('blogpost.urls')),
     path('admin/', admin.site.urls),
-    re_path('blog/(?P<slug>[^\\.]+)', views.view_post, name = 'view_post')
+    path('blog/', include('blogpost.urls'))
 ]
