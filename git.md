@@ -201,3 +201,11 @@ git checkout -b my-branch origin/feature
 git branch -u origin/feature
 git branch --set-upstream-to origin/feature
 ```
+9. 错误处理
+```
+SSL Certificate problem: unable to get local issuer
+```
+禁用证书验证：
+```
+git config --global http.sslVerify false
+```
