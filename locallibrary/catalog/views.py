@@ -21,7 +21,7 @@ def index(request):
                            'num_authors': num_authors})
 
 def book_detail_view(request, id):
-    book = get_object_or_404(Book, id=id)
+    book = get_object_or_404(Book, id = id)
     return render(
         request,
         'book_detail.html',
@@ -31,9 +31,17 @@ def book_detail_view(request, id):
 class BookListView(generic.ListView):
     model = Book
     context_object_name = 'book_list'
-    queryset = Book.objects.all()[:5]
+    # queryset = Book.objects.all()[:5]
+    paginate_by = 2
     template_name = 'book_list.html'
 
 class BookDetailView(generic.DetailView):
     model = Book
 
+def author_list_view(request):
+    author_list = Author.objects.all()
+    return render(request, 'author_list.html', context = {'author_list': author_list})
+
+def author_detail_view(request, id):
+    author = get_object_or_404(Author, id = id)
+    return render(request, 'author_detail.html', context = {'author': author})

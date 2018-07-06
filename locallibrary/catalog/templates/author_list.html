@@ -1,0 +1,18 @@
+{% extends "base.html" %} 
+
+{% block content %}
+<h1 class="pl-2">Author List</h1>
+
+{% if author_list %}
+
+    <div class="card border-success mb-3" style="max-width: 20rem;">
+        <p class="card-text mt-2">
+            {% for author in author_list %}
+            <a class="mt-5" href="{{ author.get_absolute_url }}">{{ author }}</a> <br>
+            {% endfor %}
+        </p>
+    </div
+
+{% else %}
+<p>There are no books in the library.</p>
+{% endif %} {% endblock %}
