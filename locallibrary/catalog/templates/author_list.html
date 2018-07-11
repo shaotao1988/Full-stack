@@ -5,12 +5,12 @@
 
 {% if author_list %}
 
-    <div class="card border-success mb-3" style="max-width: 20rem;">
-        <p class="card-text mt-2">
-            {% for author in author_list %}
-            <a class="mt-5" href="{{ author.get_absolute_url }}">{{ author }}</a> <br>
-            {% endfor %}
+    <div class="card mb-3" style="max-width: 20rem;">
+        {% for author in author_list %}
+        <p class="card-text mt-2 mb-2">
+            <a href="{{ author.get_absolute_url }}">{{ author }}</a> <br>
         </p>
+        {% endfor %}
     </div>
 
 {% else %}

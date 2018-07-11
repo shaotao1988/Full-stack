@@ -69,6 +69,17 @@
                     <li class="nav-item">
                         <a href="{% url 'author-list' %}">All authors</a>
                     </li>
+                    {% if user.is_authenticated %}
+                    <li class="mt-2">User: {{ user.get_username }}</li>
+                    <li><a href="{% url 'my-borrowed' %}">My Borrowed</a></li>
+                    <li>
+                        <a href="{% url 'logout'%}?next={{request.path}}">Logout</a>
+                    </li>
+                    {% else %}
+                    <li class="mt-2">
+                        <a href="{% url 'login'%}?next={{request.path}}">Login</a>
+                    </li>
+                    {% endif %}
                 </nav>
                 {% endblock %}
             </div>
