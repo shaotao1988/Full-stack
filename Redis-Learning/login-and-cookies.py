@@ -4,6 +4,7 @@ import time
 'login:'         : A hash entry that stores the token of login user
 'recent:'        : A sorted set that stores the latest active time of token
 'viewed:<token>' : A sorted set that stores the latest 25 items viewed by corresponding user
+'cart:<token>'   : A hash entry that stores the items and quantity in user's cart
 '''
 
 def check_token(conn, token):
@@ -19,6 +20,12 @@ def update_token(conn, token, user, item = None):
         # store the latest 25 items viewed by the user for further analysis
         conn.zadd('viewed:' + token, item, timestamp)
         conn.zremrangebyrank('viewed:' + token, 0 -26) 
+
+def add_to_cart(conn, session, item ,count):
+    if count <= 0:
+        conn.hrem('cart:' + session, item)
+    else:
+        conn.hset('cart:' + session, item, count)
 
 # for session cleanning
 QUIT = False
@@ -40,6 +47,7 @@ def clean_sessions(conn):
         session_keys = []
         for token in tokens:
             session_keys.append('viewed:' + token)
+            session_keys.append('cart:' + token)
         
         conn.delete(*session_keys)
         conn.hdel('login:', *tokens)
