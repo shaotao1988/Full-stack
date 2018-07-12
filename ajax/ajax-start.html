@@ -74,12 +74,18 @@
       updateDisplay(verse);
     }
 
-    // Update content by XMLHttpRequest
+    // Update content by XMLHttpRequest or Fetch
     function updateDisplay(verse) {
       verse = verse.replace(" ", "");
       verse = verse.toLowerCase();
       var url = verse + ".txt";
 
+      updateByXMLHttpRequest(url);      
+      // updateByFetch(url);
+
+    }
+
+    function updateByXMLHttpRequest(url) {
       var request = new XMLHttpRequest();
       request.open('GET', url);
       request.responseType = 'text';
@@ -87,6 +93,14 @@
         poemDisplay.textContent = request.response;
       };
       request.send();
+    }
+
+    function updateByFetch(url) {
+      fetch(url).then(function(response) {
+        response.text().then(function(text) {
+          poemDisplay.textContent = text;
+        });
+      });
     }
 
     updateDisplay('Verse 1');
