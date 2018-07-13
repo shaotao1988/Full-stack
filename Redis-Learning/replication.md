@@ -25,7 +25,35 @@ As load continues to increase, we can run into situations where the single maste
 ## Handle System Failures
 
 - Verifying snapshots and append-only files
-```
+
+``` redis
 redis-check-aof [--fix] <file.aof>
 redis-check-dump <dump.rdb>
 ```
+
+AOF fixing: Scan through the provided AOF file, looking for the fist incorrect or incomplete command. Then trims the file just before that command, so this will discard the last partial write command and these changes will be lost.
+
+A corrupted snapshot can't be fixed.
+
+- Replacing a failed server
+
+Example: Master A, Slave B. A fails to work, we need to find another machine C to work as master.
+
+```redis
+# On Machine B
+# get a snapshot, since B is a slave, there will be no writing command when we do SAVE
+SAVE
+QUIT
+# copy the snapshot to master(machine C)
+scp /var/local/redis/dump.rdb machine-c:/var/local/redis/dump.rdb
+
+# On Machine C
+redis-server start
+
+# On Machine B, make B as a slave of C
+redis-cli
+SLAVEOF machine-c 6379
+```
+
+>Redis Sentinel will automatically handles failover if the master goes down.
+
