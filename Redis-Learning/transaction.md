@@ -36,7 +36,7 @@ In many cases, we just want to execute multiple commands, these commands don't n
 
 Non-transactional pipeline can reduce the number of round trips by a factor of 3-5.
 
-```redis
+```python
 pipe = conn.pipeline(False)
 ```
 
