@@ -7,7 +7,7 @@ def ip_to_score(ip_address):
     return score
 
 def import_ips_to_redis(conn, filename):
-    csv_file = csv.reader(open(filename, 'r'))
+    csv_file = csv.reader(open(filename, 'rt', encoding = 'latin-1'))
     for count, row in enumerate(csv_file):
         start_ip = row[0] if row else ''
         if 'i' in start_ip.lower():
@@ -24,10 +24,10 @@ def import_ips_to_redis(conn, filename):
         conn.zadd('ip2cityid', city_id, start_ip)
 
 def import_cities_to_redis(conn, filename):
-    for row in csv.reader(open(filename, 'rb')):
+    for row in csv.reader(open(filename, 'rt', encoding = 'latin-1')):
         if len(row) < 4 or not row[0].isdigit():
             continue
-        row = [i.decode('latin-1') for i in row]
+
         city_id = row[0]
         country = row[1]
         region = row[2]
@@ -44,8 +44,8 @@ def find_city_by_ip(conn, ip_address):
     if not city_id:
         return None
     
-    city_id = city_id[0].partition('_')[0]
-    return json.load(conn.hget('cityid2city', city_id))
+    city_id = city_id[0].partition(b'_')[0]
+    return json.loads(conn.hget('cityid2city', city_id))
 
 if __name__ == '__main__':
     import redis
