@@ -12,7 +12,7 @@ commands to be protected by lock
 EXEC
 ```
 
-问题： WATCH只能针对key使用，而不能针对复杂数据结构中单独的属性使用。比如如果要锁hash结构中的某个键值对，需要对整个hash加锁，而不能对这个键值对加锁。这就相当于只能锁整张表，而不能锁某一行数据。数据并发比较大时会导致overload不停重试。
+问题： WATCH只能针对key使用，而不能针对复杂数据结构中单独的属性使用。比如如果要锁hash结构中的某个键值对，需要对整个hash加锁，而不能对这个键值对加锁。这就相当于只能锁整张表，而不能锁某一行数据。数据并发比较大时会导致overload不停重试。
 
 解决办法：使用setnx命令实现锁操作（set a value if the key doesn't exist）
 
