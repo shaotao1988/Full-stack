@@ -15,6 +15,8 @@ How to initiate a snapshot:
 
 As Redis memory use grows over time, so does the time to perform a fork operation for the BGSAVE, this may cause the system to pause for periods of time, which could degrade Redis's performance to the point where it's unusable.  
 
+Fork time of Redis process: 10-20ms per Gb of memory that Rdeis is using.
+
 While snapshots are great when we can deal with potentially substantial data loss in Redis, we can use append-only file persistence to allow Redis to keep more up-to-date information about data in memory stored on disk.
 
 ```
@@ -48,4 +50,4 @@ Dark side:
 
 To solve the growing AOF problem, we can use BGREWRITEAOF, wihch will rewrite the AOF to be as short as possible by removing redundant commands.
 
-BGREWRITEAOP worsk similarly to the snapshot BGSAVE: performing a fork and subsequently rewriting the append-only log in the child.
+BGREWRITEAOF works similarly to the snapshot BGSAVE: performing a fork and subsequently rewriting the append-only log in the child.
