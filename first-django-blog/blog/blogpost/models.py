@@ -4,7 +4,7 @@ from django.db.models import permalink
 # Create your models here.
 class BlogPost(models.Model):
     title = models.CharField(max_length = 100, unique = True)
-    author = models.CharField(max_length = 100, unique = True)
+    author = models.CharField(max_length = 100)
     slug = models.SlugField(max_length = 100, unique = True)
     body = models.TextField()
     posted = models.DateField(db_index = True, auto_now_add = True)
@@ -14,4 +14,4 @@ class BlogPost(models.Model):
     
     @permalink
     def get_absolute_url(self):
-        return ('blog-post', None, {'slug': self.slug})
+        return ('view_post', None, {'slug': self.slug})

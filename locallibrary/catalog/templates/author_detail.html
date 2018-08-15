@@ -1,0 +1,30 @@
+{% extends "base.html" %} 
+
+{% block content %}
+<h1 class="pl-2">Author Detail</h1>
+
+{% if author %}
+
+    <div class="card mb-3" style="max-width: 20rem;">
+        <div class="card-header">
+            {{ author }}
+            <hr>
+            <blockquote class="blockquote font-weight-light">{{ author.date_of_birth }}-{{ author.date_of_death }}</blockquote>
+        </div>
+        <div class="card-body">
+            <p class="card-title">
+                <div class="text-primary">Book List</div>
+            </p>
+            <p class="card-text mt-2">
+                {% for book in author.book_set.all %}
+                <hr>
+                <div class="text-success">Title:</div> <a href="{{ book.get_absolute_url }}">{{ book.title }}</a>
+                <div class="text-success">Summary:</div> {{ book.summary }}
+                {% endfor %}
+            </p>
+        </div>
+    </div>
+
+{% else %}
+<p>There are no books in the library.</p>
+{% endif %} {% endblock %}
