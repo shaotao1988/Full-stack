@@ -75,10 +75,10 @@ Key:<shard-id> -> Value
 '''
 def shard_key(base, key, total_elements, shard_size):
     if isinstance(key, (int, long)) or key.isdigit():
-        shard_id = int(str(key), 10) % shard_size
+        shard_id = int(str(key), 10) // shard_size
     else:
-        shard_size = 2 * total_elements
-        shard_id = binascii.crc32(key) % shard_size
+        shards = 2 * total_elements // shard_size
+        shard_id = binascii.crc32(key) % shards
     
     return "%s:%s" % (base, shard_id)
 
