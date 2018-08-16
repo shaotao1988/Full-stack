@@ -43,7 +43,7 @@ Default structure for SET: hashtable
 intset: sorted array
 
 - Low overhead
-- Speed operation
+- Speeding operation
 
 Conditions:
 - SET members can be intepreted as base-10 integers within the range of signed long integer
@@ -94,4 +94,14 @@ def shard_hget(conn, base, key, total_elements, shard_size):
 
 **4. Sharding SET**
 
+```python
+def shard_sadd(conn, base, member, total_elements, shard_size):
+    shard = shard_key(base, 'x'+str(member), total_elements, shard_size)
+    return conn.sadd(shard, member)
+```
 
+## Packing bits and bytes
+
+string类型的值支持按范围或按位操作:SETRANGE, GETRANGE, SETBIT, GETBIT.
+
+将原本需要占用较大长度内存的、按int等类型存储的数据，通过编码、整合后以位为单位进行存储和操作，以节省空间
