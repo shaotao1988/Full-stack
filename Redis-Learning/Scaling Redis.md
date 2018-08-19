@@ -21,7 +21,10 @@
 - 在使用WATCH/MULTI/EXEC时，保证WATCH的范围不要太大，否则应考虑使用自定义的更精细的分布式锁
 - 如果使用了AOF，需要保证足够的硬盘空间
 
+**通过sharding将数据存放到不同的服务器上**，在存取数据时需要先使用跟sharding一致的路由算法找到数据所在的服务器。
+
 Presharding for growth: 为未来扩容预留shards，开始可以将多个shards运行在同一台服务器上的多个Redis实例上，或者一个Redis的多个库中。有多个Redis实例时需要保证它们配置不同的端口和snapshot、AOF文件路径。
+>建议将shard数设为2的n次方，并且在未来扩容时成倍的扩充服务器，这样只需要将原来服务器上一半的库迁移到新服务器上
 
 ```python
 REDIS_CONNECTIONS = {}
@@ -41,6 +44,7 @@ def get_sharded_connection(component, key, shard_count, wait):
     shard = shard_key(component, 'x'+str(key), shard_count, 2)
     return get_redis_connection(shard, wait)
 
+# 装饰器，用于装饰所有需要连接Redis服务器的函数
 def sharded_connection(component, shard_count, wait = 1):
     def wrapper(function):
         @functools.wraps(function)
@@ -56,3 +60,4 @@ def count_visit(conn, session_id):
     if shard_add(conn, key, id, expected, SHARD_SIZE):
         conn.incr(key)
 ```
+
