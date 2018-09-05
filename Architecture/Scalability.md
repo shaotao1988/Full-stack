@@ -71,3 +71,4 @@ Two ways of asynchronism:
   - Jobs are queued on server, and return imediately to client. Client will be notified when job is done.
 
   - RabbitMQ, ActiveMQ
+
