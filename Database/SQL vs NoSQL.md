@@ -24,6 +24,7 @@ NoSQL和SQL做同样的事情：存储数据。它们使用不同的方法，可
 ## Tables vs Documents
 
 以在线商店储存书本为例，SQL以表格存储，比如：
+
 |  ISBN | Title                    |  Author  | Format  | Price |
 |-------|--------------------------|----------|---------|-------|
 |9567001|Introduction to Javascript| David    | pdf     | 26.00 |
