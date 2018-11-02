@@ -122,7 +122,7 @@ __getattr__(self, name)
 __setattr__(self, name, value)
 __delattr__(self, name)
 
-def __setattr(self, name, value):
+def __setattr__(self, name, value):
     # self.name = value 
     # 造成死循环，因为变量被设置时，调用的就是__setattr__方法
     self.__dict__[name] = value
@@ -145,6 +145,8 @@ __iter__(self)
 # in或not in时调用
 __contains__(self, item)
 ```
+
+x.name调用__getattr__，x[name]调用__getitem__
 
 # 可调用的对象
 ```python
