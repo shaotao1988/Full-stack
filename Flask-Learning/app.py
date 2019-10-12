@@ -45,14 +45,14 @@ class ExceptionMiddleware():
         try:
             app_result = self.app(environ, start_response)
             for item in app_result:
-                yeild item
+                yield item
         except:
             # 可以根据需要记录日志或调用栈等信息
             logger.debug("Exception!!!")
             # 重新设置状态码和头部
             start_response('500 INTERNAL SERVER ERROR',
                         [('Content-Type', 'text/plain')])
-            yeild b'Server error'
+            yield b'Server error'
 
         # 有些application返回的iterable可能有close方法，如果有的话结束的时候必须调用
         if hasattr(app_result, 'close'):

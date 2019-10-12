@@ -7,7 +7,7 @@ WSGI是python网络程序中位于服务器和应用程序之间的一套规范�
 WSGI规范在PEP333中说明，要点如下：
 - WSGI应用程序是一个可调用的python对象(函数或者实现了__call__方法的类)，由应用程序实现，接受2个参数：environ和start_response
 - environ是一个字典结构，包含了运行时环境，比如用户请求信息，服务器以及WSGI中间件也可以根据需要设置一些自定义的环境变量，应用程序通过这个参数决定做什么动作
-- start_response是一个函数，由服务器定义，参数为http响应的状态码的http头部，应用程序在处理完请求后必须调用该函数设置响应状态码和头部。
+- start_response是一个函数，由服务器定义，参数为http响应的状态码和http头部，应用程序在处理完请求后必须调用该函数设置响应状态码和头部。
 - WSGI应用程序必须返回可迭代的对象
 - 可以包装WSGI应用程序来实现自定义中间件，中间件是一种特殊的WSGI应用程序
 
@@ -120,14 +120,14 @@ class ExceptionMiddleware():
         try:
             app_result = self.app(environ, start_response)
             for item in app_result:
-                yeild item
+                yield item
         except:
             # 可以根据需要记录日志或调用栈等信息
             logger.debug("Exception!!!")
             # 重新设置状态码和头部
             start_response('500 INTERNAL SERVER ERROR',
                         [('Content-Type', 'text/plain')])
-            yeild b'Server error'
+            yield b'Server error'
 
         # 有些application返回的iterable可能有close方法，如果有的话结束的时候必须调用
         if hasattr(app_result, 'close'):
