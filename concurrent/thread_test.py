@@ -1,15 +1,17 @@
 import threading
 import time
+from functools import wraps
 
 number = 0
 locker = threading.Lock()
 
 def timeit(func):
+    @wraps(func)
     def wrapper(*args):
         begain = time.time()
         result = func(*args)
         end = time.time()
-        print("time elapsed: ", end-begain)
+        print("time elapsed: {:.1f}".format(end-begain))
         return result
     return wrapper
 
