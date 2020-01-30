@@ -2,7 +2,6 @@ import threading
 import time
 from functools import wraps
 
-number = 0
 locker = threading.Lock()
 
 def timeit(func):
@@ -15,6 +14,8 @@ def timeit(func):
         return result
     return wrapper
 
+number = 0
+
 class MyThread(threading.Thread):
     @timeit
     def run(self):
@@ -22,16 +23,17 @@ class MyThread(threading.Thread):
         for _ in range(1000000):
             with locker:
                 number += 1
-        print(number)
+        print("MyThread with lock:", number)
 
 number1 = 0
+
 class MyThread1(threading.Thread):
     @timeit
     def run(self):
         global number1
         for _ in range(1000000):
             number1 += 1
-        print(number1)
+        print("MyThread without lock: ", number1)
 
 if __name__ == '__main__':
     for _ in range(5):

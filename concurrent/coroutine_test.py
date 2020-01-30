@@ -21,7 +21,7 @@ start = time.time()
 tic = lambda: "{:0.1f} seconds".format(time.time()-start)
 
 def task(pid):
-    urllib.request.urlopen('http://www.google.com')
+    urllib.request.urlopen('http://www.baidu.com')
     print('Task {} done at {}'.format(pid, tic()))
 
 def synch():
