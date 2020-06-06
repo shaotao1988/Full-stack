@@ -1,4 +1,4 @@
-# Dict 实现分析
+# Python dict 实现分析
 
 ## 内存布局
 Dict使用hash表实现的，内部使用2个数组实现，一个entry为3，slot为8的Dict实现如下：
@@ -31,11 +31,11 @@ Dict使用hash表实现的，内部使用2个数组实现，一个entry为3，sl
     |int32      |2\**16，2\**31]|
     |int64     | >=2\**32|
 
-    由于EMPTY和Dummy状态用负数表示，所以indices成员都用有符号整型表示。
+    由于EMPTY和DUMMY状态用负数表示，所以indices成员都用有符号整型表示。
 
 2. entries数组
 
-    保存键值对以及键的hash值信息，indices数组保存的就是数据在entries数组的索引。
+    保存键值对以及键的hash值信息，上面indices数组保存的就是数据在entries数组的索引。
 
     |键的hash值|键|值|
     |:-:|:-:|:-:|
@@ -44,15 +44,17 @@ Dict使用hash表实现的，内部使用2个数组实现，一个entry为3，sl
     |27509|key3|value3|
 
 
-使用2个数组存储的好处:
+使用几个数组存储的好处:
 
 - 节约内存
 
     为防止冲突，indices数组是相对稀疏的，如果在这个数组中直接保存键的hash值以及键值对信息，大量的EMPTY和DUMMY槽会浪费很多内存
 
-- 加速对Dict的遍历
+- 加速对dict的遍历
 
     将对indices数组的遍历改为对entries数组的遍历，因为indices数组是稀疏的，而entries数组是密集的，遍历时可减少内存访问
+
+    另外，由于键值对在entries数组中是按插入顺序存储的，所以按entries数据遍历字典时，也会按照键值对的插入顺序遍历，自动变为有序字典。
 
 
 Dict的其他信息：
@@ -168,7 +170,7 @@ new_dict(PyDictKeysObject *keys, PyObject **values)
 
     `DK_SIZE(dk)`是dk_indices数组的大小，`DK_IXSIZE(dk)`是dk_indices数组单个元素占用空间大小，第一部分提到有int8,int16,int32,int64这样几种，分别对应单字节、双字节、四字节、八字节大小。
 
-    因此`dk->dk_indices[DK_SIZE(dk) * DK_IXSIZE(dk)]`实际上就是dk_indices的末尾、dk_entries的开始位置了，最后通过`PyDictKeyEntry*`将地址做类型转换。
+    因此`dk->dk_indices[DK_SIZE(dk) * DK_IXSIZE(dk)]`实际上就是dk_indices的末尾，也就是dk_entries的开始位置了，最后通过`PyDictKeyEntry*`将地址做类型转换。
 
 4. PyDictObject
 
@@ -179,7 +181,7 @@ new_dict(PyDictKeysObject *keys, PyObject **values)
         /* 封装了PyObject结构体，保存引用计数和数据类型信息 */
         PyObject_HEAD
 
-        /* 字典中保存的条目数，也就是PyDictKeysObject的dk_nentries */
+        /* 字典中保存的条目数，不包括DUMMY元素的个数；PyDictKeysObject的dk_nentries包含DUMMY元素的个数 */
         Py_ssize_t ma_used;
 
         /* 字典的版本号，全局唯一，当有字典创建或被修改时设置 */
@@ -236,14 +238,15 @@ lookdict(PyDictObject *mp, PyObject *key,
     i = (size_t)hash & mask;
 
     for (;;) {
-        /* 取出indices数组下标i位置存储的值，也就是slot i上存储的值 */
+        /* 取出indices数组下标i位置存储的值，这个值为EMPTY表示slot空闲，为DUMMY表示slot上的数据已经被删除了，如果>=0则表示key对应的键值对存储在dk_entries数组中的索引 */
         Py_ssize_t ix = dictkeys_get_index(dk, i);
         if (ix == DKIX_EMPTY) {
             *value_addr = NULL;
             return ix;
         }
-        /* 在indices数组中找到了，还要检查一下key是否确实是相等的，因为可能出现冲突 */
+        /* 在indices数组中找到了，还要检查一下key是否确实是相等的，因为可能出现冲突，也就是不同的key被hash到了同一个slot上 */
         if (ix >= 0) {
+            /* PyDictKeyEntry *ep0 = DK_ENTRIES(dk)，也就是entries数组的起始地址 */
             PyDictKeyEntry *ep = &ep0[ix];
             if (ep->me_key == key) {
                 *value_addr = ep->me_value;
@@ -287,11 +290,11 @@ _PyDict_Pop_KnownHash(PyObject *dict, PyObject *key, Py_hash_t hash, PyObject *d
 
 从代码可以看到，在删除字典里的元素时，只是将PyDictObject结构中的ma_used更新，并没有更新PyDictKeysObject结构中的dk_usable(可用条目数)和dk_nentries(已用条目数)，所以这部分空间是不会实时释放的。
 
-个人理解是因为entries是一个数组，删除数组中的元素代价比较高是O(n)，而dict.pop期望的复杂度是O(1)，而dict中的条目被删完之后就会自动被GC回收，另外当dict扩容时，会主动清理掉被删掉的条目来释放空空间，详细参考`dict赋值`部分的解析。
+个人理解是因为entries是一个数组，删除数组中的元素代价比较高是O(n)，而dict.pop期望的复杂度是O(1)，而dict中的条目被删完之后就会自动被GC回收，另外当dict扩容时，会主动清理掉被删掉的条目来释放DUMMY占用空间，详细参考下面`dict赋值`部分的解析。
 
 ### dict赋值
 
-分update和新增2种情况
+分update和新增2种情况。
 
 ```c
 static int
@@ -332,7 +335,7 @@ insertdict(PyDictObject *mp, PyObject *key, Py_hash_t hash, PyObject *value)
 }
 ```
 
-dict在扩容的时候，会主动清理DUMMY状态的entry以释放空间：
+dict在扩容的时候，在insertion_resize中会主动清理DUMMY状态的entry以释放空间：
 
 ```c
 static int
@@ -360,6 +363,7 @@ dictresize(PyDictObject *mp, Py_ssize_t minsize)
         memcpy(newentries, oldentries, numentries * sizeof(PyDictKeyEntry));
     }
     else {
+        /* 否则需要遍历字典来过滤DUMMY值 */
         PyDictKeyEntry *ep = oldentries;
         for (Py_ssize_t i = 0; i < numentries; i++) {
             /* 跳过空的键值对以节约空间，这些是已经被删掉的元素 */
@@ -379,6 +383,7 @@ dictresize(PyDictObject *mp, Py_ssize_t minsize)
 i = 0
 PyDictKeyEntry *entry_ptr = &DK_ENTRIES(d->ma_keys)[i];
 while (i < n && entry_ptr->me_value == NULL) {
+    ... do_something with entry_ptr ...
     entry_ptr++;
     i++;
 }
